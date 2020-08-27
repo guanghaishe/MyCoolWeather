@@ -1,6 +1,7 @@
 package com.example.coolweather;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -18,6 +19,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.example.coolweather.db.*;
+import com.example.coolweather.gson.Weather;
 import com.example.coolweather.util.HttpUtil;
 import com.example.coolweather.util.Utility;
 
@@ -71,19 +73,14 @@ public class ChooseAreaFragment extends Fragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull final LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.choose_area, container, false);
         titleText = view.findViewById(R.id.title_text);
         backButton = view.findViewById(R.id.back_button);
         listView = view.findViewById(R.id.list_view);
         adapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, dataList);
         listView.setAdapter(adapter);
-        return view;
-    }
 
-    @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
@@ -93,6 +90,12 @@ public class ChooseAreaFragment extends Fragment {
                 } else if(currentLevel == LEVEL_CITY){
                     selectedCity = cityList.get(position);
                     queryCounties();
+                } else if(currentLevel == LEVEL_COUNTY) {
+                    String weatherId = countyList.get(position).getWeatherId();
+                    Intent intent = new Intent(getActivity(), WeatherActivity.class);
+                    intent.putExtra("weather_id", weatherId);
+                    startActivity(intent);
+                    getActivity().finish();
                 }
             }
         });
@@ -106,6 +109,13 @@ public class ChooseAreaFragment extends Fragment {
                 }
             }
         });
+
+        return view;
+    }
+
+    @Override
+    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
         queryProvinces();
     }
 
